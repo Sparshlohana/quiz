@@ -1,87 +1,75 @@
 'use client'
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useRouter } from "next/navigation";
+import { useThemeContext } from "../context/context";
 
 const Page = () => {
     const [data, setData] = useState([]);
     const [selectedOption, setSelectedOption] = useState(null);
-    let [questionIndex, setQuestionIndex] = useState(0);
-    const [correctAns, setCorrectAns] = useState(null);
-    const router = useRouter()
+    const [questionIndex, setQuestionIndex] = useState(0);
+    // const [dataList, setDataList] = useState([]);
+    const router = useRouter();
+    const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount } = useThemeContext();
+    useEffect(() => {
+        handleFetchData();
+    }, []);
 
 
     const handleRadioChange = (index, item) => {
         setSelectedOption(index);
-
-
-        if (item === correctAns) {
-            successNoise();
-            if (questionIndex < data.length - 1) {
-                setQuestionIndex(questionIndex + 1);
-                handleUpdateData();
-                setCorrectAns(data[questionIndex + 1]?.correct_answer); // Update correctAns for the next question
+        const isCorrect = item === data[questionIndex]?.correct_answer;
+        data[questionIndex]["userAnswer"] = item;
+        if (questionIndex < data.length - 1) {
+            setQuestionIndex(questionIndex + 1);
+            data[questionIndex].correct = isCorrect;
+            handleUpdateData();
+            if (isCorrect) {
+                setCorrectCount(correctCount + 1);
             } else {
-                // All questions have been answered
-                toast.info('Congratulations! You have completed the quiz.', {
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                });
+                setWrongCount(wrongCount + 1);
             }
+            setDataList([...dataList, data[questionIndex]]);
         } else {
-            router?.push('/');
-            errorNoise();
+            data[questionIndex].correct = isCorrect;
+            setDataList([...dataList, data[questionIndex]]);
+
+            if (isCorrect) {
+                setCorrectCount(correctCount + 1);
+                showNotification(`Correct ${correctCount + 1} incorrect ${wrongCount}`, true);
+                router.push('/quiz/result')
+            } else {
+                setWrongCount(wrongCount + 1);
+                showNotification(`Correct ${correctCount} incorrect ${wrongCount + 1}`, false);
+                router.push('/quiz/result')
+            }
         }
     };
 
-    console.log(correctAns);
-
-    useEffect(() => {
-        handleFetchData()
-    }, [])
 
     const handleUpdateData = () => {
-
-        if (data?.length > 0) {
+        if (data.length > 0) {
             const firstQuestion = data[questionIndex];
             const allAnswers = [...firstQuestion.incorrect_answers, firstQuestion.correct_answer];
-            setCorrectAns(firstQuestion?.correct_answer);
             const shuffledAnswers = shuffleArray(allAnswers);
             firstQuestion.shuffledAnswers = shuffledAnswers;
-            setSelectedOption(null)
-        }
-
-    }
-
-    const handleFetchData = async () => {
-        const fetchData = await fetch('https://opentdb.com/api.php?amount=16');
-        const dataJson = await fetchData.json();
-
-        const dataWithShuffledAnswers = dataJson.results.map((question) => {
-            const allAnswers = [...question.incorrect_answers, question.correct_answer];
-            const shuffledAnswers = shuffleArray(allAnswers);
-            return {
-                ...question,
-                shuffledAnswers: shuffledAnswers,
-            };
-        });
-
-        setData(dataWithShuffledAnswers);
-
-        if (dataWithShuffledAnswers.length > 0) {
-            setCorrectAns(dataWithShuffledAnswers[questionIndex].correct_answer);
+            setSelectedOption(null);
         }
     };
 
+    const handleFetchData = async () => {
+        const fetchData = await fetch('https://opentdb.com/api.php?amount=15');
+        const dataJson = await fetchData.json();
 
+        const dataWithShuffledAnswers = dataJson.results.map((question) => ({
+            ...question,
+            shuffledAnswers: shuffleArray([...question.incorrect_answers, question.correct_answer]),
+        }));
+
+        setData(dataWithShuffledAnswers);
+    };
 
     const shuffleArray = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -91,27 +79,19 @@ const Page = () => {
         return array;
     };
 
-    const successNoise = () => toast.success('Correct', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-
-    const errorNoise = () => toast.error('Wrong', toast.error('🦄 Wow so easy!', {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    }));
+    const showNotification = (message, success = true) => {
+        const toastFunction = success ? toast.success : toast.error;
+        toastFunction(message, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+        });
+    };
 
     return (
         <>
@@ -168,6 +148,6 @@ const Page = () => {
             </div>
         </>
     )
-}
+};
 
 export default Page;
