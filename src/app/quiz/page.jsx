@@ -15,52 +15,72 @@ const Page = () => {
 
     const handleRadioChange = (index, item) => {
         setSelectedOption(index);
-        // setSelectOptionItem(item);
+
 
         if (item === correctAns) {
-            setQuestionIndex(++questionIndex)
-            successNoise()
-            handleUpdateData()
-        }
-        else {
+            successNoise();
+            if (questionIndex < data.length - 1) {
+                setQuestionIndex(questionIndex + 1);
+                handleUpdateData();
+                setCorrectAns(data[questionIndex + 1]?.correct_answer); // Update correctAns for the next question
+            } else {
+                // All questions have been answered
+                toast.info('Congratulations! You have completed the quiz.', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                });
+            }
+        } else {
             router?.push('/');
             errorNoise();
         }
     };
 
+    console.log(correctAns);
+
     useEffect(() => {
-        hadleFetchData()
+        handleFetchData()
     }, [])
 
-    console.log(data);
     const handleUpdateData = () => {
 
         if (data?.length > 0) {
             const firstQuestion = data[questionIndex];
             const allAnswers = [...firstQuestion.incorrect_answers, firstQuestion.correct_answer];
-            setCorrectAns(firstQuestion.correct_answer);
+            setCorrectAns(firstQuestion?.correct_answer);
             const shuffledAnswers = shuffleArray(allAnswers);
             firstQuestion.shuffledAnswers = shuffledAnswers;
-            console.log(firstQuestion);
+            setSelectedOption(null)
         }
 
     }
 
-    const hadleFetchData = async () => {
-        const fetchData = await fetch('https://opentdb.com/api.php?amount=15')
-        const dataJson = await fetchData.json()
+    const handleFetchData = async () => {
+        const fetchData = await fetch('https://opentdb.com/api.php?amount=16');
+        const dataJson = await fetchData.json();
 
-        // Randomly shuffle the correct and incorrect answers for the first question
-        if (dataJson.results.length > 0) {
-            const firstQuestion = dataJson.results[questionIndex];
-            const allAnswers = [...firstQuestion.incorrect_answers, firstQuestion.correct_answer];
-            setCorrectAns(firstQuestion.correct_answer);
+        const dataWithShuffledAnswers = dataJson.results.map((question) => {
+            const allAnswers = [...question.incorrect_answers, question.correct_answer];
             const shuffledAnswers = shuffleArray(allAnswers);
-            firstQuestion.shuffledAnswers = shuffledAnswers;
-        }
+            return {
+                ...question,
+                shuffledAnswers: shuffledAnswers,
+            };
+        });
 
-        setData(dataJson.results)
-    }
+        setData(dataWithShuffledAnswers);
+
+        if (dataWithShuffledAnswers.length > 0) {
+            setCorrectAns(dataWithShuffledAnswers[questionIndex].correct_answer);
+        }
+    };
+
 
 
     const shuffleArray = (array) => {
@@ -109,15 +129,15 @@ const Page = () => {
             />
             <div className="flex items-center justify-center min-h-screen flex-col gap-3">
                 <div className="w-[70vw] ">
-                    {data.length > 0 && (
+                    {data?.length > 0 && (
                         <div className="">
                             <span className="text-3xl">Q{questionIndex + 1}{")"} </span>
-                            <span className="text-3xl" dangerouslySetInnerHTML={{ __html: data[0]?.question }}></span>
+                            <span className="text-3xl" dangerouslySetInnerHTML={{ __html: data[questionIndex]?.question }}></span>
                         </div>
                     )}
-                    {data.length > 0 && (
+                    {data?.length > 0 && (
                         <div className="">
-                            {data[0]?.shuffledAnswers?.map((item, index) => (
+                            {data[questionIndex]?.shuffledAnswers?.map((item, index) => (
                                 <div key={index} className="flex items-center gap-4 w-[70vw]">
                                     <input
                                         type="radio"
@@ -125,7 +145,9 @@ const Page = () => {
                                         id={`option${index}`}
                                         className="hidden"
                                         checked={selectedOption === index}
-                                        onChange={() => handleRadioChange(index, item)}
+                                        onChange={() => {
+                                            handleRadioChange(index, item)
+                                        }}
                                     />
                                     <label
                                         htmlFor={`option${index}`}
