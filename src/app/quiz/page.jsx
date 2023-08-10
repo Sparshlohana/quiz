@@ -2,17 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import { useThemeContext } from "../context/context";
 
 const Page = () => {
     const [data, setData] = useState([]);
     const [selectedOption, setSelectedOption] = useState(null);
     const [questionIndex, setQuestionIndex] = useState(0);
-    // const [dataList, setDataList] = useState([]);
     const router = useRouter();
-    const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount } = useThemeContext();
+    const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, modeType, numberOfQuestion } = useThemeContext();
     useEffect(() => {
         handleFetchData();
     }, []);
@@ -38,16 +36,15 @@ const Page = () => {
 
             if (isCorrect) {
                 setCorrectCount(correctCount + 1);
-                showNotification(`Correct ${correctCount + 1} incorrect ${wrongCount}`, true);
                 router.push('/quiz/result')
             } else {
                 setWrongCount(wrongCount + 1);
-                showNotification(`Correct ${correctCount} incorrect ${wrongCount + 1}`, false);
                 router.push('/quiz/result')
             }
         }
     };
 
+    console.log(selectedCategory);
 
     const handleUpdateData = () => {
         if (data.length > 0) {
@@ -60,7 +57,7 @@ const Page = () => {
     };
 
     const handleFetchData = async () => {
-        const fetchData = await fetch('https://opentdb.com/api.php?amount=15');
+        const fetchData = await fetch(`https://opentdb.com/api.php?amount=${numberOfQuestion}&category=${selectedCategory}&difficulty=${modeType}`);
         const dataJson = await fetchData.json();
 
         const dataWithShuffledAnswers = dataJson.results.map((question) => ({
@@ -79,35 +76,11 @@ const Page = () => {
         return array;
     };
 
-    const showNotification = (message, success = true) => {
-        const toastFunction = success ? toast.success : toast.error;
-        toastFunction(message, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-        });
-    };
+
 
     return (
         <>
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
-            <div className="flex items-center justify-center min-h-screen flex-col gap-3">
+            <div className="flex items-center justify-center min-h-screen flex-col gap-3 card">
                 <div className="w-[70vw] ">
                     {data?.length > 0 && (
                         <div className="">
