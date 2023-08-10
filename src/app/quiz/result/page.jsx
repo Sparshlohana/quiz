@@ -26,6 +26,9 @@ const Page = () => {
             <div className='text-center mt-2'>
                 <h1 className='text-3xl underline'>Result</h1>
             </div>
+
+            <div className='text-3xl ml-6'>Your Score is: {correctCount}/{correctCount + wrongCount}</div>
+
             <div>
                 {dataList.map((item, questionIndex) => {
                     const answerLetters = ['A', 'B', 'C', 'D'];
@@ -48,7 +51,7 @@ const Page = () => {
                                                         } else if (item.userAnswer === answer) {
                                                             return 'text-red-400';
                                                         } else if (answer === item.correct_answer && item.checkFlag) {
-                                                            return 'text-green-400';
+                                                            return 'text-green-400 underline rounded-md px-1';
                                                         } else {
                                                             return '';
                                                         }
@@ -65,7 +68,6 @@ const Page = () => {
                 })}
             </div>
 
-            <div className='text-3xl ml-6'>Your Score is: {correctCount}/{correctCount + wrongCount}</div>
         </>
     )
 }
