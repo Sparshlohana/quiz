@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useThemeContext } from "../context/context";
+import Loader from "../components/loader/Loader";
 
 const Page = () => {
     const [data, setData] = useState([]);
@@ -11,7 +12,7 @@ const Page = () => {
     const [questionIndex, setQuestionIndex] = useState(0);
     const [timer, setTimer] = useState(45);
     const router = useRouter();
-    const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, modeType, numberOfQuestion } = useThemeContext();
+    const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, modeType, numberOfQuestion, loader, setLoader } = useThemeContext();
 
     // to fetch data
     useEffect(() => {
@@ -99,6 +100,7 @@ const Page = () => {
     };
 
     const handleFetchData = async () => {
+        setLoader(true);
         const fetchData = await fetch(`https://opentdb.com/api.php?amount=${numberOfQuestion}&category=${selectedCategory}&difficulty=${modeType}`);
         const dataJson = await fetchData.json();
 
@@ -108,6 +110,7 @@ const Page = () => {
         }));
 
         setData(dataWithShuffledAnswers);
+        setLoader(false);
     };
 
     const shuffleArray = (array) => {
@@ -122,7 +125,7 @@ const Page = () => {
 
     return (
         <>
-            <div className="flex items-center justify-center min-h-screen flex-col gap-3 card">
+            {loader ? <Loader /> : <div className="flex items-center justify-center min-h-screen flex-col gap-3 card">
                 <p className="text-lg mt-2">Time remaining: {timer} seconds</p>
                 <div className="w-[70vw] ">
                     {data?.length > 0 && (
@@ -174,7 +177,7 @@ const Page = () => {
                     </button>
 
                 </div>
-            </div>
+            </div>}
         </>
     )
 };

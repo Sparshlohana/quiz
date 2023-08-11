@@ -12,10 +12,11 @@ export const ThemeContextProvider = ({ children }) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [modeType, setModeType] = useState(null);
     const [numberOfQuestion, setNumberOfQuestion] = useState(null);
+    const [loader, setLoader] = useState(false);
 
 
     return (
-        <ThemeContext.Provider value={{ dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, setSelectedCategory, modeType, setModeType, numberOfQuestion, setNumberOfQuestion }}>
+        <ThemeContext.Provider value={{ dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, setSelectedCategory, modeType, setModeType, numberOfQuestion, setNumberOfQuestion, loader, setLoader }}>
             {children}
         </ThemeContext.Provider>
     )
