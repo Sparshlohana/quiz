@@ -9,17 +9,41 @@ const Page = () => {
     const [isOptionSelected, setIsOptionSelected] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
     const [questionIndex, setQuestionIndex] = useState(0);
-    let [indexx, setIndexx] = useState(0);
+    const [timer, setTimer] = useState(45);
     const router = useRouter();
     const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, modeType, numberOfQuestion } = useThemeContext();
-    useEffect(() => {
-        handleFetchData();
-    }, []);
 
+    // to fetch data
+    useEffect(() => {
+        handleFetchData()
+    }, [])
+
+    // to handle the time interval
+    useEffect(() => {
+        let interval;
+
+
+        if (timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prevTimer) => prevTimer - 1);
+            }, 1000);
+        } else if (timer === 0) {
+            handleNextClick();
+        }
+
+        return () => clearInterval(interval);
+
+    }, [timer]);
+
+
+    useEffect(() => {
+        setTimer(45); // Reset timer for the new question
+    }, [questionIndex]);
 
 
     const handleNextClick = () => {
-        if (isOptionSelected) {
+        console.log("next function called");
+        if (isOptionSelected || timer === 0) {
             if (questionIndex < data.length - 1) {
                 const currentQuestion = data[questionIndex];
                 const isCorrect = currentQuestion.userAnswer === currentQuestion.correct_answer;
@@ -64,8 +88,6 @@ const Page = () => {
     };
 
 
-
-
     const handleUpdateData = () => {
         if (data.length > 0) {
             const firstQuestion = data[questionIndex];
@@ -101,6 +123,7 @@ const Page = () => {
     return (
         <>
             <div className="flex items-center justify-center min-h-screen flex-col gap-3 card">
+                <p className="text-lg mt-2">Time remaining: {timer} seconds</p>
                 <div className="w-[70vw] ">
                     {data?.length > 0 && (
                         <div className="">
