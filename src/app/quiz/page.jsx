@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import { useThemeContext } from "../context/context";
 
 const Page = () => {
     const [data, setData] = useState([]);
+    const [isOptionSelected, setIsOptionSelected] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
     const [questionIndex, setQuestionIndex] = useState(0);
+    let [indexx, setIndexx] = useState(0);
     const router = useRouter();
     const { dataList, setDataList, wrongCount, setWrongCount, correctCount, setCorrectCount, selectedCategory, modeType, numberOfQuestion } = useThemeContext();
     useEffect(() => {
@@ -16,35 +17,54 @@ const Page = () => {
     }, []);
 
 
-    const handleRadioChange = (index, item) => {
-        setSelectedOption(index);
-        const isCorrect = item === data[questionIndex]?.correct_answer;
-        data[questionIndex]["userAnswer"] = item;
-        if (questionIndex < data.length - 1) {
-            setQuestionIndex(questionIndex + 1);
-            data[questionIndex].correct = isCorrect;
-            handleUpdateData();
-            if (isCorrect) {
-                setCorrectCount(correctCount + 1);
-            } else {
-                setWrongCount(wrongCount + 1);
-            }
-            setDataList([...dataList, data[questionIndex]]);
-        } else {
-            data[questionIndex].correct = isCorrect;
-            setDataList([...dataList, data[questionIndex]]);
 
-            if (isCorrect) {
-                setCorrectCount(correctCount + 1);
-                router.push('/quiz/result')
+    const handleNextClick = () => {
+        if (isOptionSelected) {
+            if (questionIndex < data.length - 1) {
+                const currentQuestion = data[questionIndex];
+                const isCorrect = currentQuestion.userAnswer === currentQuestion.correct_answer;
+
+                currentQuestion.correct = isCorrect;
+                handleUpdateData();
+
+                if (isCorrect) {
+                    setCorrectCount(correctCount + 1);
+                } else {
+                    setWrongCount(wrongCount + 1);
+                }
+
+                setDataList([...dataList, currentQuestion]);
+                setQuestionIndex(questionIndex + 1);
             } else {
-                setWrongCount(wrongCount + 1);
-                router.push('/quiz/result')
+                const currentQuestion = data[questionIndex];
+                const isCorrect = currentQuestion.userAnswer === currentQuestion.correct_answer;
+
+                currentQuestion.correct = isCorrect;
+                setDataList([...dataList, currentQuestion]);
+
+                if (isCorrect) {
+                    setCorrectCount(correctCount + 1);
+                } else {
+                    setWrongCount(wrongCount + 1);
+                }
+
+                router.push('/quiz/result');
             }
+            setIsOptionSelected(false);
         }
     };
 
-    console.log(selectedCategory);
+
+    const handleRadioChange = (index, item) => {
+        const updatedData = [...data];
+        updatedData[questionIndex].userAnswer = item;
+        setData(updatedData);
+        setSelectedOption(index);
+        setIsOptionSelected(true); // Option is selected, enable the "Next" button
+    };
+
+
+
 
     const handleUpdateData = () => {
         if (data.length > 0) {
@@ -89,34 +109,47 @@ const Page = () => {
                         </div>
                     )}
                     {data?.length > 0 && (
-                        <div className="">
-                            {data[questionIndex]?.shuffledAnswers?.map((item, index) => (
-                                <div key={index} className="flex items-center gap-4 w-[70vw]">
-                                    <input
-                                        type="radio"
-                                        name="options"
-                                        id={`option${index}`}
-                                        className="hidden"
-                                        checked={selectedOption === index}
-                                        onChange={() => {
-                                            handleRadioChange(index, item)
-                                        }}
-                                    />
-                                    <label
-                                        htmlFor={`option${index}`}
-                                        className="cursor-pointer flex items-center gap-2"
-                                    >
-                                        <span className="w-5 h-5 border border-gray-400 rounded-full flex items-center justify-center">
-                                            {selectedOption === index && (
-                                                <span className="w-4 h-4 bg-blue-500 rounded-full"></span>
-                                            )}
-                                        </span>
-                                        <p className="text-2xl" dangerouslySetInnerHTML={{ __html: item }}></p>
-                                    </label>
-                                </div>
-                            ))}
+                        <div className="my-5">
+                            {data[questionIndex]?.shuffledAnswers?.map((item, index) => {
+
+                                return (<>
+                                    <div key={index} className="flex items-center w-[70vw]">
+                                        <input
+                                            type="radio"
+                                            name="options"
+                                            id={`option${index}`}
+                                            className="hidden"
+                                            checked={selectedOption === index}
+                                            onChange={() => {
+                                                handleRadioChange(index, item)
+                                            }}
+                                        />
+                                        <label
+                                            htmlFor={`option${index}`}
+                                            className="cursor-pointer flex items-center gap-2"
+                                        >
+                                            <span className="w-5 h-5 border border-gray-400 rounded-full flex items-center justify-center">
+                                                {selectedOption === index && (
+                                                    <span className="w-4 h-4 bg-blue-500 rounded-full"></span>
+                                                )}
+                                            </span>
+                                            <p className="text-2xl my-1" dangerouslySetInnerHTML={{ __html: item }}></p>
+                                        </label>
+
+                                    </div>
+
+                                </>)
+                            })}
                         </div>
                     )}
+                    <button
+                        onClick={handleNextClick}
+                        className={`border px-1 w-[100px] text-lg rounded ${isOptionSelected ? '' : 'opacity-50 cursor-not-allowed'}`}
+                        disabled={!isOptionSelected}
+                    >
+                        Next
+                    </button>
+
                 </div>
             </div>
         </>

@@ -63,7 +63,11 @@ const Page = () => {
     return (
         <div className='flex items-center justify-center min-h-screen gap-5 flex-col'>
             <div className='card flex items-center justify-center h-[50vh] p-2 gap-5 flex-col'>
-                <div className='w-[35vw]'>
+
+                <div className='mb-10'>
+                    <h1 className='text-2xl leading-none underline'>Welcome to your quiz</h1>
+                </div>
+                <div className='w-[75vw] md:w-[35vw]'>
                     <Select
                         value={categoryArray?.value}
                         onChange={(e) => setSelectedCategory(e.value)}
@@ -73,7 +77,7 @@ const Page = () => {
                     />
                 </div>
 
-                <div className='w-[35vw]'>
+                <div className='w-[75vw] md:w-[35vw]'>
                     <Select
                         value={options.label}
                         onChange={(e) => { setModeType(e.value) }}
@@ -84,7 +88,7 @@ const Page = () => {
                 </div>
 
 
-                <div className='w-[35vw]'>
+                <div className='w-[75vw] md:w-[35vw]'>
                     <Select
                         value={numberOfQuestionsArray.label}
                         onChange={(e) => { setNumberOfQuestion(e.value) }}
