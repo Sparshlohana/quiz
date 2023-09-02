@@ -130,8 +130,8 @@ const Page = () => {
                 <div className="w-[70vw] ">
                     {data?.length > 0 && (
                         <div className="">
-                            <span className="text-3xl">Q{questionIndex + 1}{")"} </span>
-                            <span className="text-3xl" dangerouslySetInnerHTML={{ __html: data[questionIndex]?.question }}></span>
+                            <span className="text-2xl md:text-3xl">Q{questionIndex + 1}{")"} </span>
+                            <span className="text-2xl md:text-3xl" dangerouslySetInnerHTML={{ __html: data[questionIndex]?.question }}></span>
                         </div>
                     )}
                     {data?.length > 0 && (
@@ -159,7 +159,7 @@ const Page = () => {
                                                     <span className="w-4 h-4 bg-blue-500 rounded-full"></span>
                                                 )}
                                             </span>
-                                            <p className="text-2xl my-1" dangerouslySetInnerHTML={{ __html: item }}></p>
+                                            <p className="text-xl md:text-2xl my-1" dangerouslySetInnerHTML={{ __html: item }}></p>
                                         </label>
 
                                     </div>

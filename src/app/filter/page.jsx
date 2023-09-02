@@ -5,17 +5,19 @@ import Select from 'react-select';
 import NextArrow from '../components/Icons';
 import { useThemeContext } from '../context/context';
 import Link from 'next/link';
+import Loader from '../components/loader/Loader';
 
 const Page = () => {
     const [categoryArray, setCategoryArray] = useState([]);
 
-    const { selectedCategory, setSelectedCategory, modeType, setModeType, numberOfQuestion, setNumberOfQuestion } = useThemeContext();
+    const { selectedCategory, setSelectedCategory, modeType, setModeType, numberOfQuestion, setNumberOfQuestion, loader, setLoader } = useThemeContext();
 
     useEffect(() => {
         handleFetchCategories();
     }, [])
 
     const handleFetchCategories = async () => {
+        setLoader(true);
         const categoriesData = await fetch('https://opentdb.com/api_category.php')
             .then((res) => res.json())
             .then((data) => data.trivia_categories)
@@ -24,6 +26,7 @@ const Page = () => {
             return { value: category.id, label: category.name }
         });
         setCategoryArray(newArr);
+        setLoader(false);
     }
 
     const numberOfQuestionsArray = [
@@ -61,48 +64,50 @@ const Page = () => {
     };
 
     return (
-        <div className='flex items-center justify-center min-h-screen gap-5 flex-col'>
-            <div className='card flex items-center justify-center h-[50vh] p-2 gap-5 flex-col'>
+        <>
+            {loader ? <Loader /> : <div className='flex items-center justify-center min-h-screen gap-5 flex-col'>
+                <div className='card flex items-center justify-center h-[50vh] p-2 gap-5 flex-col'>
 
-                <div className='mb-10'>
-                    <h1 className='text-2xl leading-none underline'>Welcome to your quiz</h1>
-                </div>
-                <div className='w-[75vw] md:w-[35vw]'>
-                    <Select
-                        value={categoryArray?.value}
-                        onChange={(e) => setSelectedCategory(e.value)}
-                        options={categoryArray}
-                        styles={darkModeStyles} // Apply the dark mode styles
-                        placeholder='Select Category...'
-                    />
-                </div>
+                    <div className='mb-10'>
+                        <h1 className='text-2xl leading-none underline'>Welcome to your quiz</h1>
+                    </div>
+                    <div className='w-[75vw] md:w-[35vw]'>
+                        <Select
+                            value={categoryArray?.value}
+                            onChange={(e) => setSelectedCategory(e.value)}
+                            options={categoryArray}
+                            styles={darkModeStyles} // Apply the dark mode styles
+                            placeholder='Select Category...'
+                        />
+                    </div>
 
-                <div className='w-[75vw] md:w-[35vw]'>
-                    <Select
-                        value={options.label}
-                        onChange={(e) => { setModeType(e.value) }}
-                        options={options}
-                        styles={darkModeStyles} // Apply the dark mode styles
-                        placeholder='Difficulty...'
-                    />
-                </div>
+                    <div className='w-[75vw] md:w-[35vw]'>
+                        <Select
+                            value={options.label}
+                            onChange={(e) => { setModeType(e.value) }}
+                            options={options}
+                            styles={darkModeStyles} // Apply the dark mode styles
+                            placeholder='Difficulty...'
+                        />
+                    </div>
 
 
-                <div className='w-[75vw] md:w-[35vw]'>
-                    <Select
-                        value={numberOfQuestionsArray.label}
-                        onChange={(e) => { setNumberOfQuestion(e.value) }}
-                        options={numberOfQuestionsArray}
-                        styles={darkModeStyles} // Apply the dark mode styles
-                        placeholder='Number of Questions...'
-                    />
-                </div>
+                    <div className='w-[75vw] md:w-[35vw]'>
+                        <Select
+                            value={numberOfQuestionsArray.label}
+                            onChange={(e) => { setNumberOfQuestion(e.value) }}
+                            options={numberOfQuestionsArray}
+                            styles={darkModeStyles} // Apply the dark mode styles
+                            placeholder='Number of Questions...'
+                        />
+                    </div>
 
-                <div className='w-[35vw] flex justify-center cursor-pointer'>
-                    {selectedCategory && modeType && numberOfQuestion ? <Link href={'/start'}><NextArrow /></Link> : null}
+                    <div className='w-[35vw] flex justify-center cursor-pointer'>
+                        {selectedCategory && modeType && numberOfQuestion ? <Link href={'/start'}><NextArrow /></Link> : null}
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div>}
+        </>
     );
 };
 

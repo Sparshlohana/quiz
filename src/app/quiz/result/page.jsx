@@ -85,18 +85,18 @@ const Page = () => {
                 pauseOnHover
                 theme="dark"
             />
-            <div className='text-center mt-2'>
+            <div className='text-center mt-3'>
                 <h1 className='text-3xl underline'>Result</h1>
             </div>
 
-            <div className='text-3xl ml-6'>Your Score is: {correctCount}/{correctCount + wrongCount}</div>
+            <div className='text-3xl mt-3 ml-6'>Your Score is: {correctCount}/{correctCount + wrongCount}</div>
 
             <div className='scrollbar'>
                 {dataList.map((item, questionIndex) => {
 
                     return (
-                        <div className={`m-5 ${item.correct ? 'border-green-400 ' : 'border-red-400'} border border-solid p-4 rounded-[10px] text-xl relative`} key={questionIndex}>
-                            {!item.correct ? <button onClick={() => clickHandler(item)} className='absolute right-4 border py-1 px-2 rounded-md text-base'>Check Answer</button>
+                        <div className={`mx-5 my-10 ${item.correct ? 'border-green-400 ' : 'border-red-400 '} border border-solid px-4 pt-6 pb-4 rounded-[10px] text-xl relative`} key={questionIndex}>
+                            {!item.correct ? <button onClick={() => clickHandler(item)} className='absolute right-4 -top-4 z-20 border py-1 px-2 rounded-md text-base bg-black'>Check Answer</button>
                                 : null}
                             <div>
                                 <span>Q{questionIndex + 1}</span> <span dangerouslySetInnerHTML={{ __html: item.question }} />
