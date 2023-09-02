@@ -22,7 +22,7 @@ const Page = () => {
             .then((res) => res.json())
             .then((data) => data.trivia_categories)
             .catch((err) => console.log(err));
-        const newArr = categoriesData.map((category) => {
+        const newArr = categoriesData?.map((category) => {
             return { value: category.id, label: category.name }
         });
         setCategoryArray(newArr);
