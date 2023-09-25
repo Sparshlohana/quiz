@@ -6,7 +6,7 @@ body {
   background: #000;
   cursor: url("/cursor.png"), auto;
   color: #fff;
-  background-image: url("/quizBackground.jpg");
+  background-image: url("/background.jpeg");
   background-size: cover;
   overflow: hidden;
 }
